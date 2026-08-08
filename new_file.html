@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小咪官网 | MyOS Official</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        :root {
+            --primary-blue: #0066cc;
+            --primary-purple: #6b5ce7;
+            --gradient-brand: linear-gradient(135deg, #0066cc 0%, #6b5ce7 50%, #9333ea 100%);
+            --gradient-soft: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #94a3b8;
+            --bg-white: #ffffff;
+            --bg-soft: #f8fafc;
+            --border-light: #e2e8f0;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-soft);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: saturate(200%) blur(24px);
+            -webkit-backdrop-filter: saturate(200%) blur(24px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            box-shadow: var(--shadow-sm);
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            line-height: 1.05;
+            cursor: pointer;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: transform 0.2s ease;
+            letter-spacing: -0.5px;
+        }
+
+        .logo:hover {
+            transform: scale(1.03);
+        }
+
+        .logo span {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: var(--text-tertiary);
+            -webkit-text-fill-color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+            height: 100%;
+            align-items: center;
+        }
+
+        .nav-item {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color 0.2s ease;
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-brand);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .nav-item:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-item:hover::after {
+            width: 20px;
+        }
+
+        /* 搜索框重构 */
+        .search-wrapper {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--text-tertiary);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 36px;
+            padding: 0 14px 0 36px;
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            background: #fff;
+            font-size: 14px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+        }
+
+        .search-result {
+            position: absolute;
+            top: 44px;
+            right: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--shadow-xl);
+            padding: 8px;
+            display: none;
+            animation: searchDrop 0.2s ease;
+            max-height: 240px;
+            overflow-y: auto;
+            z-index: 1001;
+        }
+
+        .search-result.active {
+            display: block;
+        }
+
+        @keyframes searchDrop {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-result-item {
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s;
+            font-size: 13px;
+        }
+
+        .search-result-item:hover {
+            background: #f1f5f9;
+            color: var(--primary-blue);
+        }
+
+        /* 巨型菜单 */
+        .mega-menu {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: saturate(200%) blur(28px);
+            -webkit-backdrop-filter: saturate(200%) blur(28px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 40px 60px 48px;
+            display: none;
+            z-index: 999;
+            animation: megaSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .mega-menu.active {
+            display: block;
+        }
+
+        @keyframes megaSlide {
+            from { opacity: 0; transform: translateY(-12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .mega-menu-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 80px;
+        }
+
+        .mega-column h4 {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-tertiary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .mega-column ul {
+            list-style: none;
+        }
+
+        .mega-column li {
+            padding: 10px 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            left: 0;
+        }
+
+        .mega-column li:hover {
+            color: var(--primary-blue);
+            left: 4px;
+        }
+
+        .mega-desc {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* 全局返回按钮 */
+        .back-btn {
+            position: fixed;
+            top: 80px;
+            left: 28px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 900;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 18px;
+            color: var(--text-primary);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .back-btn:hover {
+            transform: scale(1.08) translateX(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .back-btn.show {
+            display: flex;
+        }
+
+        /* 页面容器 */
+        .page-container {
+            padding-top: 56px;
+            min-height: 100vh;
+        }
+
+        .page {
+            display: none;
+            animation: pageFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 首页Hero */
+        .home-hero {
+            height: 720px;
+            background: linear-gradient(rgba(248, 250, 252, 0.7), rgba(241, 245, 249, 0.7)), url('hero-bg.jpg') center center / cover no-repeat;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .home-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 102, 204, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .home-hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(107, 92, 231, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-30px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(0, 102, 204, 0.12);
+            color: #0055aa;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .hero-badge:hover {
+            background: rgba(0, 102, 204, 0.18);
+        }
+
+        .home-hero h1 {
+            font-size: 72px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -2px;
+            line-height: 1.05;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            /* 科技倾斜效果 */
+            display: inline-block;
+            transform: skewX(-8deg);
+            text-shadow: 0 4px 30px rgba(0, 102, 204, 0.15);
+        }
+
+        .home-hero .subtitle {
+            font-size: 24px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-brand);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(0, 102, 204, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 102, 204, 0.35);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text-primary);
+            border: 1.5px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* 通用区块 */
+        .section {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .bilibili-jump {
+            cursor: pointer;
+            font-size: 32px;
+            transition: transform 0.2s ease;
+            display: inline-block;
+        }
+
+        .bilibili-jump:hover {
+            transform: scale(1.15);
+        }
+
+        .section-desc {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-brand);
+            transform: scaleX(0);
+            transition: transform 0.35s ease;
+            transform-origin: left;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: transparent;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(107, 92, 231, 0.1) 100%);
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .feature-link {
+            color: var(--primary-blue);
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 0.2s;
+        }
+
+        .feature-card:hover .feature-link {
+            gap: 8px;
+        }
+
+        /* 视频预告区 */
+        .showcase-section {
+            background: #fff;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .showcase-card {
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            height: 360px;
+            background: var(--gradient-soft);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: all 0.4s ease;
+            color: #fff;
+        }
+
+        .showcase-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .showcase-card.card-1 {
+            background-image: url('1.jpg');
+        }
+
+        .showcase-card.card-2 {
+            background-image: url('2.jpg');
+        }
+
+        .showcase-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%);
+            z-index: 1;
+        }
+
+        .showcase-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 32px;
+            z-index: 2;
+        }
+
+        .showcase-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .showcase-card h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .showcase-card p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* 数据统计区 */
+        .stats-section {
+            background: var(--gradient-brand);
+            color: #fff;
+            padding: 60px 24px;
+        }
+
+        .stats-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 44px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-item p {
+            font-size: 14px;
+            opacity: 0.85;
+        }
+
+        /* 通用内页 */
+        .page-hero {
+            padding: 120px 24px 80px;
+            text-align: center;
+            background: var(--gradient-soft);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-hero::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 102, 204, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .page-hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .page-hero .desc {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto;
+            position: relative;
+            line-height: 1.7;
+        }
+
+        .page-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 24px 100px;
+        }
+
+        .content-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        .content-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .content-section h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .content-section p {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .content-section ul {
+            padding-left: 20px;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        .link-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .link-btn.primary {
+            background: var(--gradient-brand);
+            color: #fff;
+        }
+
+        .link-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.3);
+        }
+
+        .link-btn.ghost {
+            border: 1.5px solid var(--border-light);
+            color: var(--text-primary);
+            background: transparent;
+        }
+
+        .link-btn.ghost:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Logo跳转页 */
+        .follow-page {
+            min-height: 100vh;
+            background: var(--gradient-brand);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            padding: 0 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .follow-page::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: pulse 6s ease-in-out infinite;
+        }
+
+        .follow-page::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: pulse 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .follow-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .follow-logo {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .follow-page h2 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+        }
+
+        .follow-link {
+            display: inline-block;
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            color: #fff;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.3s;
+            word-break: break-all;
+        }
+
+        .follow-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* 页脚 */
+        .footer {
+            background: #0f172a;
+            color: #94a3b8;
+            padding: 60px 24px 30px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-brand h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 12px;
+            background: var(--gradient-brand);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p {
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 320px;
+        }
+
+        .footer-column h4 {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            padding: 6px 0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .footer-column li:hover {
+            color: #fff;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 响应式 */
+        @media (max-width: 968px) {
+            .feature-grid { grid-template-columns: 1fr; }
+            .showcase-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-content { grid-template-columns: 1fr 1fr; }
+            .home-hero h1 { font-size: 48px; }
+            .page-hero h1 { font-size: 40px; }
+            .section-title { font-size: 32px; }
+            .mega-menu-grid { grid-template-columns: 1fr; gap: 32px; }
+            .nav-menu { gap: 20px; }
+            .search-wrapper { width: 200px; }
+        }
+
+        @media (max-width: 568px) {
+            .header { padding: 0 16px; }
+            .nav-menu { gap: 12px; }
+            .nav-item { font-size: 13px; }
+            .home-hero h1 { font-size: 36px; }
+            .home-hero .subtitle { font-size: 18px; }
+            .hero-actions { flex-direction: column; width: 100%; max-width: 280px; }
+            .btn { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .footer-content { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+            .content-card { padding: 32px 24px; }
+            .search-wrapper { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header" id="header">
+        <div class="logo" onclick="goToPage('follow')">
+            MyOS
+            <span>XIAOMI</span>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item" onclick="goToPage('home')">🧑‍🧑‍🧒</li>
+            <li class="nav-item" onclick="goToPage('software')">软件商城</li>
+            <li class="nav-item" onclick="window.open('https://www.ysjf.com/material', '_blank')">素材提供</li>
+            <li class="nav-item" onclick="goToPage('mystore')">MyStore</li>
+            <li class="nav-item" onclick="window.open('https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0', '_blank')">与我们合作</li>
+        </ul>
+
+        <!-- 新搜索框 -->
+        <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input 
+                type="text" 
+                class="search-input" 
+                placeholder="搜索或输入网站名称" 
+                oninput="handleSearch(this.value)"
+                onfocus="showSearchResult()"
+            >
+            <div class="search-result" id="searchResult"></div>
+        </div>
+    </header>
+
+    <!-- 巨型下拉菜单 -->
+    <div class="mega-menu" id="megaMenu" onmouseenter="keepMegaMenu()" onmouseleave="hideMegaMenu()">
+        <div class="mega-menu-grid">
+            <div class="mega-column">
+                <h4>视频预告</h4>
+                <ul>
+                    <li onclick="goToPage('airpods')">
+                        AirPods Max 讲解
+                        <div class="mega-desc">深度产品解析</div>
+                    </li>
+                    <li onclick="goToPage('nanjing')">
+                        南京游玩
+                        <div class="mega-desc">金陵古城攻略</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="mega-column">
+                <h4>关于我们</h4>
+                <ul>
+                    <li onclick="goToPage('about')">
+                        账号介绍
+                        <div class="mega-desc">了解我们的创作故事</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="mega-column">
+                <h4>更多</h4>
+                <ul>
+                    <li onclick="goToPage('more')">
+                        合作方式
+                        <div class="mega-desc">商务合作与联系</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局返回按钮 -->
+    <div class="back-btn" id="backBtn" onclick="goBack()">←</div>
+
+    <!-- 页面主体 -->
+    <div class="page-container">
+
+        <!-- 首页 -->
+        <div class="page active" id="page-home">
+            <section class="home-hero">
+                <div class="hero-content">
+                    <a class="hero-badge" href="https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0" target="_blank">
+                        大家好我是小咪
+                    </a>
+                    <h1>创造无限可能</h1>
+                    <p class="subtitle">专注优质内容创作，分享技术与创意的碰撞</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="goToPage('airpods')">查看预告 →</button>
+                        <button class="btn btn-secondary" onclick="goToPage('about')">了解更多</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-header">
+                    <div class="section-tag">核心板块</div>
+                    <h2 class="section-title">一站式创作生态</h2>
+                    <p class="section-desc">从软件工具到素材资源，从商品周边到内容创作，全方位助力创意实现</p>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="goToPage('software')">
+                        <div class="feature-icon">💻</div>
+                        <h3>软件商城</h3>
+                        <p>精选高效创作软件与工具，持续打磨每一款产品，为创作者提供专业级生产力支持。</p>
+                        <span class="feature-link">即将上线 →</span>
+                    </div>
+                    <div class="feature-card" onclick="window.open('https://www.ysjf.com/material', '_blank')">
+                        <div class="feature-icon">🎬</div>
+                        <h3>素材提供</h3>
+                        <p>海量高质量视频素材库，涵盖城市人文、自然风光、野生动物等多种题材。</p>
+                        <span class="feature-link">立即查看 →</span>
+                    </div>
+                    <div class="feature-card" onclick="goToPage('mystore')">
+                        <div class="feature-icon">🛍️</div>
+                        <h3>MyStore</h3>
+                        <p>官方周边商城，精选设计好物，将创作态度融入生活的每一个细节。</p>
+                        <span class="feature-link">敬请期待 →</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section showcase-section">
+                <div class="section-header">
+                    <div class="section-tag">精彩预告</div>
+                    <h2 class="section-title">
+                        视频预告
+                        <span class="bilibili-jump" onclick="window.open('https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0', '_blank')">↖️</span>
+                    </h2>
+                    <p class="section-desc">全新内容即将上线，敬请期待</p>
+                </div>
+                <div class="showcase-grid">
+                    <div class="showcase-card card-1" onclick="goToPage('airpods')">
+                        <div class="showcase-content">
+                            <span class="showcase-tag">第一个预告</span>
+                            <h3>AirPods Max 讲解</h3>
+                            <p>深度产品解析，干货内容即将上线</p>
+                        </div>
+                    </div>
+                    <div class="showcase-card card-2" onclick="goToPage('nanjing')">
+                        <div class="showcase-content">
+                            <span class="showcase-tag">第二个预告</span>
+                            <h3>南京游玩</h3>
+                            <p>金陵古城的人文风光与美食记录</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <h4>2026</h4>
+                        <p>账号成立年份</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>N+</h4>
+                        <p>已发布视频</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>4K+</h4>
+                        <p>高清素材资源</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>∞</h4>
+                        <p>创作热情</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="footer-brand">
+                        <h3>MyOS 小咪</h3>
+                        <p>专注内容创作，分享前沿科技与创意生活。我们相信，好的内容值得被认真对待。</p>
+                    </div>
+                    <div class="footer-column">
+                        <h4>产品</h4>
+                        <ul>
+                            <li onclick="goToPage('software')">软件商城</li>
+                            <li onclick="window.open('https://www.ysjf.com/material', '_blank')">素材提供</li>
+                            <li onclick="goToPage('mystore')">MyStore</li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>探索</h4>
+                        <ul>
+                            <li onclick="goToPage('airpods')">AirPods Max 讲解</li>
+                            <li onclick="goToPage('nanjing')">南京游玩</li>
+                            <li onclick="goToPage('about')">关于我们</li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>关注我们</h4>
+                        <ul>
+                            <li onclick="window.open('https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0', '_blank')">哔哩哔哩</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <span>Copyright © 2026 小咪官网 MyOS. All rights reserved.</span>
+                    <span>制作人陈梓睿</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- AirPods Max 详情页 -->
+        <div class="page" id="page-airpods">
+            <section class="page-hero">
+                <h1>AirPods Max 深度讲解</h1>
+                <p class="desc">苹果旗舰头戴式降噪耳机，重新定义聆听体验</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card">
+                    <div class="content-section">
+                        <h3>产品概述</h3>
+                        <p>AirPods Max 是苹果推出的高端头戴式无线耳机，将苹果在音频领域的技术积累与极简设计美学融为一体。它搭载了与 AirPods Pro 同源的 H1 芯片，结合高保真驱动单元，带来通透细腻的音质表现和行业领先的主动降噪能力。</p>
+                        <p>整机采用不锈钢机身框架搭配透气针织网罩头梁，耳罩使用记忆棉与透气网布材质，在保证佩戴密封性的同时兼顾长时间佩戴的舒适度，数码旋钮与顶部按键的组合也延续了苹果产品的操作逻辑。</p>
+                    </div>
+                    <div class="content-section">
+                        <h3>核心亮点</h3>
+                        <ul>
+                            <li><strong>主动降噪</strong>：通过外向麦克风检测环境噪音，内向麦克风校准耳道音效，实现沉浸式降噪体验</li>
+                            <li><strong>通透模式</strong>：保留环境人声与外界声音，日常出行更安全</li>
+                            <li><strong>空间音频</strong>：支持动态头部追踪，带来影院级环绕声场</li>
+                            <li><strong>高保真音质</strong>：40mm 动圈驱动单元，低频下潜扎实，高频通透自然</li>
+                            <li><strong>无缝生态联动</strong>：在 iPhone、iPad、Mac 之间自动切换，一键连接</li>
+                        </ul>
+                    </div>
+                    <div class="content-section">
+                        <h3>佩戴与续航</h3>
+                        <p>AirPods Max 采用分布式重量设计，头梁网罩有效分散头部压力，相比传统头戴耳机佩戴感更轻盈。耳罩采用磁吸式设计，可轻松更换不同颜色款式，满足个性化需求。</p>
+                        <p>续航方面，开启主动降噪与空间音频可连续聆听 20 小时，搭配智能保护壳可进入超低功耗待机状态，大幅延长使用周期。充电接口位于右耳底部，支持 Lightning 有线充电。</p>
+                    </div>
+                    <div class="link-group">
+                        <button class="link-btn primary" onclick="goToPage('home')">返回首页</button>
+                        <button class="link-btn ghost" onclick="goToPage('nanjing')">查看下一个预告</button>
+                    </div>
+                </div>
+            </div>
+            <footer class="footer">
+                <div class="footer-bottom">
+                    <span>Copyright © 2026 小咪官网 MyOS. All rights reserved.</span>
+                    <span>制作人陈梓睿</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- 南京游玩详情页 -->
+        <div class="page" id="page-nanjing">
+            <section class="page-hero">
+                <h1>南京游玩攻略</h1>
+                <p class="desc">十朝都会，金陵古韵，一座藏着历史与烟火的城市</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card">
+                    <div class="content-section">
+                        <h3>城市印象</h3>
+                        <p>南京，古称金陵、建康，是中国四大古都之一，有“十朝都会”的美誉。长江穿城而过，紫金山屹立城东，秦淮河蜿蜒流淌，既有厚重的历史底蕴，也有鲜活的市井烟火。</p>
+                        <p>春天的鸡鸣寺樱花、夏天的梧桐大道、秋天的栖霞山红叶、冬天的明故宫落雪，四季皆有不同的风景。老门东的烟火气、新街口的繁华、颐和路的民国风情，共同构成了这座城市独特的气质。</p>
+                    </div>
+                    <div class="content-section">
+                        <h3>必打卡景点</h3>
+                        <ul>
+                            <li><strong>夫子庙·秦淮河</strong>：夜游秦淮河，看两岸灯火，感受金陵夜泊的古韵</li>
+                            <li><strong>老门东</strong>：传统街巷与文艺小店交融，南京美食聚集地</li>
+                            <li><strong>中山陵</strong>：紫金山南麓，近代历史地标，登高俯瞰南京城</li>
+                            <li><strong>明孝陵</strong>：明清皇家陵寝典范，石象路秋景绝美</li>
+                            <li><strong>总统府</strong>：近代历史缩影，了解民国风云的好去处</li>
+                            <li><strong>颐和路民国公馆区</strong>：梧桐树下的老洋房，适合散步拍照</li>
+                        </ul>
+                    </div>
+                    <div class="content-section">
+                        <h3>地道美食</h3>
+                        <p>南京美食兼顾南北风味，以鸭肴最为出名，素有“没有一只鸭子能活着走出南京”的说法。</p>
+                        <ul>
+                            <li><strong>盐水鸭</strong>：皮白肉嫩，咸鲜入味，是南京城市名片</li>
+                            <li><strong>鸭血粉丝汤</strong>：鸭汤鲜香，粉丝顺滑，搭配锅巴与辣油更绝</li>
+                            <li><strong>牛肉锅贴</strong>：外皮酥脆，内馅多汁，早餐首选</li>
+                            <li><strong>美龄粥</strong>：豆浆与糯米熬制，清甜温润</li>
+                            <li><strong>梅花糕</strong>：街头传统甜品，外脆里糯，豆沙馅经典</li>
+                        </ul>
+                    </div>
+                    <div class="content-section">
+                        <h3>出行建议</h3>
+                        <p>南京地铁网络发达，大部分景点均可地铁直达，老城区建议步行+共享单车，慢慢感受街巷氛围。春秋两季气候宜人，是最佳旅行时节。建议安排 3-4 天行程，既能逛完核心景点，也能慢慢体验本地生活。</p>
+                    </div>
+                    <div class="link-group">
+                        <button class="link-btn primary" onclick="goToPage('home')">返回首页</button>
+                        <button class="link-btn ghost" onclick="goToPage('airpods')">查看上一个预告</button>
+                    </div>
+                </div>
+            </div>
+            <footer class="footer">
+                <div class="footer-bottom">
+                    <span>Copyright © 2026 小咪官网 MyOS. All rights reserved.</span>
+                    <span>制作人陈梓睿</span>
+                </div>
+            </footer>
+        </div>
+
+        <!-- 软件商城页 -->
+        <div class="page" id="page-software">
+            <section class="page-hero">
+                <h1>软件商城</h1>
+                <p class="desc">专业创作工具，正在精心打磨中</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card" style="text-align: center;">
+                    <div class="feature-icon" style="margin: 0 auto 28px;">⚙️</div>
+                    <h2>软件制作中</h2>
+                    <p>我们正在全力开发第一款创作软件，力求为创作者带来极致的使用体验。<br>敬请期待，精彩即将呈现。</p>
+                    <div class="link-group">
+                        <button class="link-btn ghost" onclick="goBack()">← 返回首页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MyStore页 -->
+        <div class="page" id="page-mystore">
+            <section class="page-hero">
+                <h1>MyStore</h1>
+                <p class="desc">官方周边商城，精选设计好物</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card" style="text-align: center;">
+                    <div class="feature-icon" style="margin: 0 auto 28px;">🎁</div>
+                    <h2>暂无商品上架</h2>
+                    <p>首批周边产品正在紧张筹备中，每一件都经过精心设计与严格品控。<br>关注我们，第一时间获取上新通知。</p>
+                    <div class="link-group">
+                        <a class="link-btn primary" href="https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0" target="_blank">关注 B 站账号</a>
+                        <button class="link-btn ghost" onclick="goBack()">← 返回</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于我们页 -->
+        <div class="page" id="page-about">
+            <section class="page-hero">
+                <h1>关于我们</h1>
+                <p class="desc">认识这个热爱创作的小团队</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card" style="text-align: center;">
+                    <div class="logo" style="font-size: 48px; display: inline-block; margin-bottom: 24px; cursor: pointer;" onclick="goToPage('follow')">
+                        MyOS
+                        <span style="font-size: 14px;">XIAOMI</span>
+                    </div>
+                    <h2>我们的故事</h2>
+                    <p>我们的账号成立于2026年7月11日，并且已经发布了好几条视频了。<br>我们热爱创作，热爱用镜头记录世界，用技术探索边界。<br>希望大家可以关注我们，谢谢！</p>
+                    <div class="link-group">
+                        <a class="link-btn primary" href="https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0" target="_blank">前往 B 站关注</a>
+                        <button class="link-btn ghost" onclick="goToPage('follow')">查看关注引导页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 合作方式页 -->
+        <div class="page" id="page-more">
+            <section class="page-hero">
+                <h1>合作方式</h1>
+                <p class="desc">期待与你一起创造更多可能</p>
+            </section>
+            <div class="page-content">
+                <div class="content-card" style="text-align: center;">
+                    <div class="feature-icon" style="margin: 0 auto 28px;">🤝</div>
+                    <h2>商务合作</h2>
+                    <p>如果想合作可以在哔哩哔哩私信我！<br>我们开放品牌合作、内容定制、器材测评等多种合作形式。</p>
+                    <div class="link-group">
+                        <a class="link-btn primary" href="https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0" target="_blank">前往 B 站私信</a>
+                        <button class="link-btn ghost" onclick="goBack()">← 返回</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo跳转关注页 -->
+        <div class="page" id="page-follow">
+            <div class="follow-page">
+                <div class="follow-content">
+                    <div class="follow-logo">MyOS</div>
+                    <h2>点击下面这个网址关注我们</h2>
+                    <a class="follow-link" href="https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0" target="_blank">
+                        https://space.bilibili.com/3632305293756509?spm_id_from=333.337.0.0
+                    </a>
+                    <div style="margin-top: 40px;">
+                        <button class="btn btn-secondary" onclick="goToPage('home')" style="background: rgba(255,255,255,0.1); border: none; color: #fff;">返回首页</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let pageHistory = ['home'];
+        let megaMenuTimer = null;
+
+        // 导航滚动效果
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 20) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // 页面跳转核心函数
+        function goToPage(pageName) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            const targetPage = document.getElementById('page-' + pageName);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+
+            if (pageHistory[pageHistory.length - 1] !== pageName) {
+                pageHistory.push(pageName);
+            }
+
+            const backBtn = document.getElementById('backBtn');
+            if (pageName === 'home') {
+                backBtn.classList.remove('show');
+                pageHistory = ['home'];
+            } else {
+                backBtn.classList.add('show');
+            }
+
+            hideMegaMenu();
+            hideSearchResult();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 返回上一页
+        function goBack() {
+            if (pageHistory.length > 1) {
+                pageHistory.pop();
+                const prevPage = pageHistory[pageHistory.length - 1];
+                
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById('page-' + prevPage).classList.add('active');
+
+                if (prevPage === 'home') {
+                    document.getElementById('backBtn').classList.remove('show');
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                goToPage('home');
+            }
+        }
+
+        // 巨型菜单控制
+        function showMegaMenu() {
+            clearTimeout(megaMenuTimer);
+            document.getElementById('megaMenu').classList.add('active');
+        }
+
+        function keepMegaMenu() {
+            clearTimeout(megaMenuTimer);
+        }
+
+        function hideMegaMenu() {
+            megaMenuTimer = setTimeout(() => {
+                document.getElementById('megaMenu').classList.remove('active');
+            }, 200);
+        }
+
+        // 搜索功能
+        function showSearchResult() {
+            document.getElementById('searchResult').classList.add('active');
+        }
+
+        function hideSearchResult() {
+            document.getElementById('searchResult').classList.remove('active');
+        }
+
+        function handleSearch(keyword) {
+            const resultBox = document.getElementById('searchResult');
+            const pages = [
+                { name: '首页', key: 'home' },
+                { name: 'AirPods Max 讲解', key: 'airpods' },
+                { name: '南京游玩', key: 'nanjing' },
+                { name: '软件商城', key: 'software' },
+                { name: '素材提供', key: 'material' },
+                { name: 'MyStore 周边商城', key: 'mystore' },
+                { name: '关于我们', key: 'about' },
+                { name: '合作方式', key: 'more' }
+            ];
+
+            if (!keyword.trim()) {
+                resultBox.innerHTML = '';
+                return;
+            }
+
+            const filtered = pages.filter(p => p.name.includes(keyword));
+            
+            if (filtered.length === 0) {
+                resultBox.innerHTML = '<div class="search-result-item">暂无相关结果</div>';
+                return;
+            }
+
+            resultBox.innerHTML = filtered.map(item => 
+                `<div class="search-result-item" onclick="handleSearchJump('${item.key}')">${item.name}</div>`
+            ).join('');
+        }
+
+        function handleSearchJump(key) {
+            if (key === 'material') {
+                window.open('https://www.ysjf.com/material', '_blank');
+            } else {
+                goToPage(key);
+            }
+            hideSearchResult();
+        }
+
+        // 点击空白关闭搜索
+        document.addEventListener('click', function(e) {
+            const searchWrapper = document.querySelector('.search-wrapper');
+            if (!searchWrapper.contains(e.target)) {
+                hideSearchResult();
+            }
+        });
+    </script>
+</body>
+</html>
